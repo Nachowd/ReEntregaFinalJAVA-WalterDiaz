@@ -20,11 +20,9 @@ import java.util.List;
 public class ClientController {
 
     @Autowired
-    private final ClientService service;
+    private ClientService service;
 
-    public ClientController(ClientService service) {
-        this.service = service;
-    }
+
 
     @Operation(summary = "Obtener todos los clientes", description = "Obtiene una lista de todos los clientes registrados")
     @ApiResponses(value = {
@@ -70,7 +68,7 @@ public class ClientController {
         return ResponseEntity.ok(client);
     }
 
-    @Operation(summary = "Crear un nuevo cliente")
+    @Operation(summary = "Crear un nuevo cliente en la BBDD")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Cliente creado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Solicitud inválida (datos incompletos o incorrectos)",
