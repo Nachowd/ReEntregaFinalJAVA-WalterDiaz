@@ -1,4 +1,4 @@
-/*package WalterDiaz.coderhouse.jpa.services;
+package WalterDiaz.coderhouse.jpa.services;
 
 import WalterDiaz.coderhouse.jpa.entities.Invoice;
 import WalterDiaz.coderhouse.jpa.entities.InvoiceDetail;
@@ -85,4 +85,4 @@ public class InvoiceServiceTest {
         assertThrows(InsufficientStockException.class, () -> invoiceService.createInvoice(invoice));
     }
 
-}*/
+}

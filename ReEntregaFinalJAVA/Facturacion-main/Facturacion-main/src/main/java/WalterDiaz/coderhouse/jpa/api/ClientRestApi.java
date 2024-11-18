@@ -12,7 +12,7 @@ import java.util.Map;
 @Service
 public class ClientRestApi {
 
-    final String url = "https://jsonplaceholder.typicode.com/clients";
+    final String url = "https://jsonplaceholder.typicode.com/users";
 
     public ResponseEntity<Client[]> getClients() {
         RestTemplate restTemplate = new RestTemplate();
@@ -22,10 +22,10 @@ public class ClientRestApi {
         );
     }
 
-    public Client getClientById(String id) {
+    public Client getClientById(int id) {
         RestTemplate restTemplate = new RestTemplate();
         Map<String, Object> params = new HashMap<>();
-        params.put("id", id.toString());
+        params.put("id", id);
         try {
             return restTemplate.getForObject(
                     this.url + "/{id}",
@@ -33,9 +33,10 @@ public class ClientRestApi {
                     params
             );
         } catch (HttpClientErrorException.NotFound e) {
+            System.err.println("Client not found: " + id);
             return null;
         } catch (Exception e) {
-            throw new RuntimeException("Error to obtein a client", e);
+            throw new RuntimeException("Error obtaining client", e);
         }
     }
 
@@ -48,10 +49,10 @@ public class ClientRestApi {
         );
     }
 
-    public Client updateClient(String id, Client client) {
+    public Client updateClient(int id, Client client) {
         RestTemplate restTemplate = new RestTemplate();
         Map<String, Object> params = new HashMap<>();
-        params.put("id", id.toString());
+        params.put("id", id);
         restTemplate.put(
                 this.url + "/{id}",
                 client,
@@ -60,14 +61,15 @@ public class ClientRestApi {
         return client;
     }
 
-    public Client deleteClient(String id) {
+    public Client deleteClient(int id) {
         RestTemplate restTemplate = new RestTemplate();
         Map<String, Object> params = new HashMap<>();
-        params.put("id", id.toString());
+        params.put("id", id);
         Client client = restTemplate.getForObject(
                 this.url + "/{id}",
                 Client.class,
-                params);
+                params
+        );
         if (client != null) {
             restTemplate.delete(
                     this.url + "/{id}",
@@ -78,5 +80,5 @@ public class ClientRestApi {
         }
         return client;
     }
-
 }
+

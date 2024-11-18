@@ -30,9 +30,9 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product updateProduct(String id, Product newProduct) {
+    public Product updateProduct(int id, Product newProduct) {
         return productRepository.findById(id).map(product -> {
-            System.out.println("Actualizando producto con ID: " + product.getId() + " con nuevo precio: " + newProduct.getPrice());
+            System.out.println("Actualizando producto con ID: " + product.getProductId() + " con nuevo precio: " + newProduct.getPrice());
             product.setDescription(newProduct.getDescription());
             product.setCodigo(newProduct.getCodigo());
             product.setStock(newProduct.getStock());
@@ -41,7 +41,7 @@ public class ProductService {
         }).orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    public void deleteProduct(String id) {
+    public void deleteProduct(int id) {
         if (productRepository.existsById(id)) {
             productRepository.deleteById(id);
         } else {
@@ -49,9 +49,8 @@ public class ProductService {
         }
     }
 
-    public Product getProductById(String id) {
+    public Product getProductById(int id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
-
 }

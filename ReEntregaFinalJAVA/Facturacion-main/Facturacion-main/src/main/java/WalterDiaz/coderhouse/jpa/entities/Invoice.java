@@ -21,16 +21,16 @@ import java.util.List;
 public class Invoice {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, updatable = false, length = 36)
-    @Schema(description = "Unique ID of the invoice", accessMode = Schema.AccessMode.READ_ONLY, example = "0124529f-81b7-4924-952e-8d3fe108ab8f")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "invoice_id", nullable = false, updatable = false)
+    @Schema(description = "Unique ID of the invoice", accessMode = Schema.AccessMode.READ_ONLY, example = "1")
+    private int invoiceId;  // Renombrado para mayor claridad
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     @JsonIgnoreProperties("invoices")
     @Schema(description = "Client related to the invoice", requiredMode = Schema.RequiredMode.REQUIRED,
-            example = "{ \"id\": \"123e4567-e89b-12d3-a456-426614174000\" }")
+            example = "{ \"id\": \"1\" }") // Cambié el ejemplo a un valor de tipo 'int'
     private Client client;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -50,5 +50,4 @@ public class Invoice {
         this.client = client;
         this.details = details;
     }
-
 }

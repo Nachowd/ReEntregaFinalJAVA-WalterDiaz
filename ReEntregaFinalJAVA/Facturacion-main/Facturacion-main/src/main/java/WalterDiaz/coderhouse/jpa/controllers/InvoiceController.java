@@ -40,30 +40,26 @@ public class InvoiceController {
             @ApiResponse(responseCode = "201", description = "Factura creada exitosamente"),
             @ApiResponse(responseCode = "400", description = "Solicitud inválida (datos incompletos o incorrectos)",
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) }),
-
             @ApiResponse(responseCode = "409", description = "El cliente o producto no existen o no hay suficiente stock",
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) }),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor",
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) })
     })
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<?> createInvoice(
-            @RequestBody
-            @io.swagger.v3.oas.annotations.media.Schema(example = "{\n" +
-                    "  \"client\": {\n" +
-                    "    \"id\": \"49d7fb2e-1435-41a2-8cc2-020bfeeb4151\"\n" +
-                    "  },\n" +
-                    "  \"details\": [\n" +
-                    "    {\n" +
-                    "      \"product\": {\n" +
-                    "        \"id\": \"0cccbc88-0793-42f0-b76f-ee7bdeedcedd\"\n" +
-                    "      },\n" +
-                    "      \"amount\": 4,\n" +
-                    "      \"price\": 750.4\n" +
-                    "    }\n" +
-                    "  ]\n" +
-                    "}")
-            Invoice invoice) {
+    public ResponseEntity<?> createInvoice(@RequestBody @io.swagger.v3.oas.annotations.media.Schema(example = "{\n" +
+            "  \"client\": {\n" +
+            "    \"id\": \"49d7fb2e-1435-41a2-8cc2-020bfeeb4151\"\n" +
+            "  },\n" +
+            "  \"details\": [\n" +
+            "    {\n" +
+            "      \"product\": {\n" +
+            "        \"id\": \"0cccbc88-0793-42f0-b76f-ee7bdeedcedd\"\n" +
+            "      },\n" +
+            "      \"amount\": 4,\n" +
+            "      \"price\": 750.4\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}") Invoice invoice) {
 
         if (invoice.getClient() == null) {
             log.error("Error: El cliente no fue proporcionado en la factura");
@@ -118,7 +114,7 @@ public class InvoiceController {
             response.put("totalProducts", totalProducts);
             response.put("totalAmount", totalAmount);
 
-            log.info("Factura creada exitosamente con ID: {}", createdInvoice.getId());
+            log.info("Factura creada exitosamente con ID: {}", createdInvoice.getInvoiceId());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
         } catch (InsufficientStockException e) {
@@ -128,14 +124,12 @@ public class InvoiceController {
                             HttpStatus.CONFLICT.getReasonPhrase(),
                             e.getMessage(),
                             "stock"));
-
         } catch (ResponseStatusException e) {
             log.error("Error en validaciones de la factura: {}", e.getReason());
             return ResponseEntity.status(e.getStatusCode())
                     .body(new ErrorResponseDto(String.valueOf(e.getStatusCode().value()),
                             e.getReason(),
                             e.getReason(), "validation_error"));
-
         } catch (Exception e) {
             log.error("Error inesperado al crear la factura", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -146,25 +140,6 @@ public class InvoiceController {
         }
     }
 
-    @Operation(summary = "Obtener todas las facturas")
-    @ApiResponses (value = {
-            @ApiResponse(responseCode = "200", description = "Facturas obtenidas exitosamente"),
-            @ApiResponse(responseCode = "404", description = "No se encontraron las facturas",
-                content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) })
-    })
-    @GetMapping
-    public ResponseEntity<?> getAllInvoices() {
-        List<Invoice> invoices = invoiceService.getAllInvoices();
-        if (invoices.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponseDto(String.valueOf(HttpStatus.NOT_FOUND.value()),
-                            HttpStatus.NOT_FOUND.getReasonPhrase(),
-                            "No se encontraron todas las facturas",
-                            "invoices"));
-        }
-        return ResponseEntity.ok(invoices);
-    }
-
     @Operation(summary = "Obtener una factura por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Factura obtenida exitosamente"),
@@ -172,67 +147,13 @@ public class InvoiceController {
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) })
     })
     @GetMapping("/{id}")
-    public ResponseEntity<?> getInvoiceById(@PathVariable String id) {
-        Invoice invoice = invoiceService.getInvoiceById(id);
+    public ResponseEntity<?> getInvoiceById(@PathVariable String id) { // Cambié int a String
+        Invoice invoice = invoiceService.getInvoiceById(Integer.parseInt(id));
         if (invoice == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponseDto(String.valueOf(HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND.getReasonPhrase(), "Factura no encontrada", "id"));
         }
         return ResponseEntity.ok(invoice);
-    }
-
-    @Operation(summary = "Actualizar una factura")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Factura actualizada exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos",
-                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) }),
-            @ApiResponse(responseCode = "404", description = "Factura no encontrada",
-                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) }),
-            @ApiResponse(responseCode = "409", description = "Conflicto en la actualización de la factura: Stock insuficiente",
-                    content = { @Content(mediaType = "application/json", schema = @Schema(example = "{\n" +
-                            "  \"statusCode\": \"409\",\n" +
-                            "  \"status\": \"Conflict\",\n" +
-                            "  \"message\": \"Cantidad mayor al stock disponible\",\n" +
-                            "  \"field\": \"stock\"\n" +
-                            "}")
-                    )}),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
-                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) })
-    })
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateInvoice(
-            @PathVariable String id,
-            @RequestBody
-            @io.swagger.v3.oas.annotations.media.Schema(example = "{\n" +
-                    "  \"client\": {\n" +
-                    "    \"id\": \"123e4567-e89b-12d3-a456-426614174000\"\n" +
-                    "  },\n" +
-                    "  \"details\": [\n" +
-                    "    {\n" +
-                    "      \"product\": {\n" +
-                    "        \"id\": \"270a05aa-7c34-4f14-9d5d-f877974c98f4\"\n" +
-                    "      },\n" +
-                    "      \"amount\": 5,\n" +
-                    "      \"price\": 750.4\n" +
-                    "    }\n" +
-                    "  ]\n" +
-                    "}")
-            Invoice invoiceDetails) {
-
-        Invoice updatedInvoice = invoiceService.updateInvoice(id, invoiceDetails);
-        if (updatedInvoice == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponseDto(String.valueOf(HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND.getReasonPhrase(), "Factura no encontrada", "id"));
-        }
-        double totalAmount = invoiceService.calculateTotal(updatedInvoice);
-        int totalProducts = invoiceService.calculateTotalProducts(updatedInvoice);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("invoice", updatedInvoice);
-        response.put("totalProducts", totalProducts);
-        response.put("totalAmount", totalAmount);
-
-        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Eliminar una factura")
@@ -242,8 +163,8 @@ public class InvoiceController {
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) })
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteInvoice(@PathVariable String id) {
-        boolean deleted = invoiceService.deleteInvoice(id);
+    public ResponseEntity<?> deleteInvoice(@PathVariable String id) { // Cambié int a String
+        boolean deleted = invoiceService.deleteInvoice(Integer.parseInt(id));
         if (!deleted) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponseDto(String.valueOf(HttpStatus.NOT_FOUND.value()), HttpStatus.NOT_FOUND.getReasonPhrase(), "Factura no encontrada", "id"));

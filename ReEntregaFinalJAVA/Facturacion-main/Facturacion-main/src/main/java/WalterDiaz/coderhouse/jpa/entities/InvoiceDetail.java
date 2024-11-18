@@ -15,19 +15,19 @@ import lombok.Setter;
 public class InvoiceDetail {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, updatable = false, length = 36)
-    @Schema(description = "Unique ID of the invoice detail", requiredMode = Schema.RequiredMode.AUTO, example = "11223344-81b7-4924-952e-8d3fe108ab8f")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Usamos GenerationType.IDENTITY para IDs de tipo int
+    @Column(name = "invoice_details_id", nullable = false, updatable = false)
+    @Schema(description = "Unique ID of the invoice detail", requiredMode = Schema.RequiredMode.AUTO, example = "1")
+    private int invoiceDetailsId;  // Tipo de dato int
 
 
     @Column(name = "AMOUNT", nullable = false)
     @Schema(description = "Amount of products in this detail", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
-    private int amount;
+    private int amount;  // Tipo de dato int
 
     @Column(name = "PRICE", nullable = false)
     @Schema(description = "Price of the product at the time of the invoice", requiredMode = Schema.RequiredMode.REQUIRED, example = "750.25")
-    private double price;
+    private double price;  // Tipo de dato double
 
     @ManyToOne
     @JoinColumn(name = "invoice_id", nullable = false)
@@ -42,8 +42,9 @@ public class InvoiceDetail {
             example = "{ \"id\": \"234e4567-e89b-12d3-a456-426614174111\", \"description\": \"resma A5\", \"price\": 750.25 }")
     private Product product;
 
+    // Método para obtener el total del detalle
     public double getTotal() {
-        return amount * price;
+        return amount * price;  // Calcula el total como la cantidad multiplicada por el precio
     }
-
 }
+

@@ -27,8 +27,8 @@ public class ProductController {
 
     @Operation(summary = "Obtener todos los productos", description = "Obtiene una lista de todos los productos disponibles")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "succeses operation"),
-            @ApiResponse(responseCode = "404", description = "Not founded products")
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "404", description = "Not found products")
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Product>> getAll() {
@@ -38,13 +38,13 @@ public class ProductController {
 
     @Operation(summary = "Obtener un producto por ID", description = "Obtiene un producto específico mediante su ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "succeses operation"),
-            @ApiResponse(responseCode = "404", description = "Not founded product")
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "404", description = "Product not found")
     })
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getById(@PathVariable String id) {
+    public ResponseEntity<?> getById(@PathVariable int id) {
         try {
-            Product product = service.getProductById(id);
+            Product product = service.getProductById(id);  // Aquí sigue siendo 'int'
             return ResponseEntity.ok(product);
         } catch (RuntimeException e) {
             ErrorResponseDto errorResponse = new ErrorResponseDto("404", "Not Found", "Producto no encontrado", "id");
@@ -54,8 +54,8 @@ public class ProductController {
 
     @Operation(summary = "Crear un nuevo producto", description = "Agrega un nuevo producto al sistema")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "succeses new product"),
-            @ApiResponse(responseCode = "400", description = "invalid params")
+            @ApiResponse(responseCode = "201", description = "Product created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid parameters")
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestBody Product product) {
@@ -71,13 +71,12 @@ public class ProductController {
 
     @Operation(summary = "Actualizar un producto existente", description = "Actualiza los datos de un producto existente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "succeses update product"),
-            @ApiResponse(responseCode = "404", description = "Not founded product")
+            @ApiResponse(responseCode = "200", description = "Product updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody Product product) {
+    public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody Product product) {
         try {
-            product.setId(id);
             Product updatedProduct = service.updateProduct(id, product);
             return ResponseEntity.ok(updatedProduct);
         } catch (RuntimeException e) {
@@ -88,11 +87,11 @@ public class ProductController {
 
     @Operation(summary = "Eliminar un producto por ID", description = "Elimina un producto del sistema mediante su ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "product deleted "),
-            @ApiResponse(responseCode = "404", description = "Not founded product")
+            @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable String id) {
+    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
         try {
             service.deleteProduct(id);
             return ResponseEntity.noContent().build();
@@ -101,5 +100,5 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
-
 }
+

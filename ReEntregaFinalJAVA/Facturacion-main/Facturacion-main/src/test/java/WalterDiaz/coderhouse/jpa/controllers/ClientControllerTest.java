@@ -1,14 +1,14 @@
-/* package WalterDiaz.coderhouse.jpa.controllers;
+package WalterDiaz.coderhouse.jpa.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
-import tomi.coderhouse.jpa.entities.Client;
 import org.springframework.http.ResponseEntity;
+import WalterDiaz.coderhouse.jpa.entities.Client;
+
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ClientControllerTest {
@@ -31,9 +31,10 @@ public class ClientControllerTest {
 
     @Test
     void testGetClientNotFound() {
-        ResponseEntity<Client> response = restTemplate.getForEntity("/api/clientes/" + UUID.randomUUID(), Client.class);
+        int nonExistentId = 9999;
+        ResponseEntity<Client> response = restTemplate.getForEntity("/api/clientes/" + nonExistentId, Client.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
+}
 
-}*/

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -60,15 +59,14 @@ public class InvoiceService {
     }
 
     private void validateInvoice(Invoice invoice) {
-
-        Optional<Client> client = clientRepository.findById(invoice.getClient().getId());
+        Optional<Client> client = clientRepository.findById(invoice.getClient().getClientId());  // Cambio aquí
         if (client.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cliente no existe");
         }
         invoice.setClient(client.get());
 
         for (InvoiceDetail detail : invoice.getDetails()) {
-            Optional<Product> product = productRepository.findById(detail.getProduct().getId());
+            Optional<Product> product = productRepository.findById(detail.getProduct().getProductId());  // Cambio aquí
             if (product.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Producto no existe");
             }
@@ -103,18 +101,18 @@ public class InvoiceService {
         return invoiceRepository.findAll();
     }
 
-    public Invoice getInvoiceById(String id) {
+    public Invoice getInvoiceById(int id) {
         return invoiceRepository.findById(id).orElse(null);
     }
 
-    public Invoice updateInvoice(String id, Invoice invoiceDetails) {
+    public Invoice updateInvoice(int id, Invoice invoiceDetails) {
         Optional<Invoice> invoiceOptional = invoiceRepository.findById(id);
         if (invoiceOptional.isPresent()) {
             Invoice invoice = invoiceOptional.get();
 
             invoice.setClient(invoiceDetails.getClient());
 
-            Optional<Client> clientOptional = clientRepository.findById(invoiceDetails.getClient().getId());
+            Optional<Client> clientOptional = clientRepository.findById(invoiceDetails.getClient().getClientId());  // Cambio aquí
             if (clientOptional.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cliente no existe");
             }
@@ -125,7 +123,7 @@ public class InvoiceService {
             invoice.getDetails().clear();
 
             for (InvoiceDetail detail : invoiceDetails.getDetails()) {
-                Optional<Product> productOptional = productRepository.findById(detail.getProduct().getId());
+                Optional<Product> productOptional = productRepository.findById(detail.getProduct().getProductId());  // Cambio aquí
                 if (productOptional.isEmpty()) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Producto no existe");
                 }
@@ -152,7 +150,7 @@ public class InvoiceService {
         }
     }
 
-    public boolean deleteInvoice(String id) {
+    public boolean deleteInvoice(int id) {
         Optional<Invoice> invoiceOptional = invoiceRepository.findById(id);
         if (invoiceOptional.isPresent()) {
             invoiceRepository.deleteById(id);
@@ -161,5 +159,7 @@ public class InvoiceService {
             return false;
         }
     }
-
 }
+
+
+

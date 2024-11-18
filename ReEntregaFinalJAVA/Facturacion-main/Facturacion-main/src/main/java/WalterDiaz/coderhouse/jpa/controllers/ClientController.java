@@ -28,8 +28,8 @@ public class ClientController {
 
     @Operation(summary = "Obtener todos los clientes", description = "Obtiene una lista de todos los clientes registrados")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Succesful operation"),
-            @ApiResponse(responseCode = "400", description = "invalid request"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida")
     })
     @GetMapping
     public ResponseEntity<List<Client>> getClients() {
@@ -43,9 +43,19 @@ public class ClientController {
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) }
             )})
     @GetMapping("/{id}")
-    public ResponseEntity<Client> getClientById(@PathVariable String id) {
+    public ResponseEntity<?> getClientById(@PathVariable int id) {  // Cambié de String a int
         Client client = service.getClientById(id);
-        return ResponseEntity.ok(client);
+        if (client != null) {
+            return ResponseEntity.ok(client);
+        } else {
+            // Crear la respuesta de error
+            ErrorResponseDto errorResponse = new ErrorResponseDto(
+                    String.valueOf(HttpStatus.NOT_FOUND.value()),
+                    HttpStatus.NOT_FOUND.getReasonPhrase(),
+                    "Cliente no encontrado",
+                    "id");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
     }
 
     @Operation(summary = "Buscar cliente por número de documento", description = "Obtiene los datos de un cliente utilizando su número de documento")
@@ -64,20 +74,12 @@ public class ClientController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Cliente creado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Solicitud inválida (datos incompletos o incorrectos)",
-                content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) }),
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) }),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor",
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) })
-            })
+    })
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<?> createClient(
-            @RequestBody
-            @io.swagger.v3.oas.annotations.media.Schema(example = "{\n" +
-                    "  \"id\": \"49d7fb2e-1435-41a2-8cc2-020bfeeb4151\",\n" +
-                    "  \"name\": \"John Doe\",\n" +
-                    "  \"email\": \"johndoe@example.com\",\n" +
-                    "  \"docNumber\": \"12345678\"\n" +
-                    "}")
-            Client client) {
+    public ResponseEntity<?> createClient(@RequestBody Client client) {
         try {
             Client savedClient = this.service.createClient(client);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedClient);
@@ -100,12 +102,12 @@ public class ClientController {
 
     @Operation(summary = "Actualizar un cliente existente por ID", description = "Actualiza los datos de un cliente existente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Succesful update Client"),
-            @ApiResponse(responseCode = "404", description = "Client no found",
+            @ApiResponse(responseCode = "200", description = "Actualización exitosa del cliente"),
+            @ApiResponse(responseCode = "404", description = "Cliente no encontrado",
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) }
             )})
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateClient(@PathVariable String id, @RequestBody Client client) {
+    public ResponseEntity<?> updateClient(@PathVariable int id, @RequestBody Client client) {
         try {
             service.updateClient(id, client);
             return ResponseEntity.ok().build();
@@ -117,12 +119,12 @@ public class ClientController {
 
     @Operation(summary = "Eliminar un cliente por ID", description = "Elimina un cliente del sistema utilizando su ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Succesful delete Client"),
-            @ApiResponse(responseCode = "404", description = "Client no found",
+            @ApiResponse(responseCode = "204", description = "Eliminación exitosa del cliente"),
+            @ApiResponse(responseCode = "404", description = "Cliente no encontrado",
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)) }
             )})
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteClient(@PathVariable String id) {
+    public ResponseEntity<?> deleteClient(@PathVariable int id) {
         try {
             service.deleteClient(id);
             return ResponseEntity.noContent().build();
@@ -131,5 +133,7 @@ public class ClientController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
-
 }
+
+
+

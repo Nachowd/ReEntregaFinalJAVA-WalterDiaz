@@ -23,7 +23,7 @@ public class ClientService {
         return clientRepository.findAll();
     }
 
-    public void updateClient(String id, Client client) {
+    public void updateClient(int id, Client client) {
         Client existingClient = clientRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "El cliente con el ID proporcionado no fue encontrado"));
         existingClient.setName(client.getName());
@@ -32,7 +32,7 @@ public class ClientService {
         clientRepository.save(existingClient);
     }
 
-    public void deleteClient(String id) {
+    public void deleteClient(int id) {
         if (clientRepository.existsById(id)) {
             clientRepository.deleteById(id);
         } else {
@@ -40,7 +40,7 @@ public class ClientService {
         }
     }
 
-    public Client getClientById(String id) {
+    public Client getClientById(int id) {
         return clientRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
     }
@@ -51,3 +51,4 @@ public class ClientService {
     }
 
 }
+

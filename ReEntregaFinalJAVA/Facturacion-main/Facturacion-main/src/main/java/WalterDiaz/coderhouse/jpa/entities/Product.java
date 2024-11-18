@@ -19,10 +19,10 @@ import java.util.List;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, updatable = false, length = 36)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id", nullable = false, updatable = false, length = 36)
     @Schema(description = "Unique ID of the product", accessMode = Schema.AccessMode.READ_ONLY, example = "99887766-81b7-4924-952e-8d3fe108ab8f")
-    private String id;
+    private int productId;
 
     @Column(name = "DESCRIPTION", nullable = false)
     @Schema(description = "Description of the product", requiredMode = Schema.RequiredMode.REQUIRED, example = "resma A5")
@@ -43,18 +43,20 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("product")
     @Schema(description = "List of invoice details associated with this product", example = "null")
-    private List<InvoiceDetail> details;
+    private List<InvoiceDetail> details;  // Relación con los detalles de las facturas
+
+    // Métodos de manipulación del stock
 
     public void increaseStock(int quantity) {
-        this.stock += quantity;
+        this.stock += quantity;  // Incrementa el stock
     }
 
     public void decreaseStock(int quantity) {
-        this.stock -= quantity;
+        this.stock -= quantity;  // Decrementa el stock
     }
 
+    // Verifica si hay suficiente stock disponible
     public boolean isInStock(int quantity) {
-        return this.stock >= quantity;
+        return this.stock >= quantity;  // Retorna si el stock disponible es suficiente
     }
-
 }
